@@ -1,0 +1,84 @@
+<!--
+Copyright 2021 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinyML Experiment BLE Transfer</title>
+  </head>
+  <body>
+    <h2>Testing page for TinyML Experiments BLE Button</h2>
+    <div id="connectBtn"></div>
+    <div id="calibrationBtn"></div>
+    <div id="progressDiv"></div>
+    <div id="inferenceDiv"></div>
+
+    <script type="module">
+      import connectButton from "./button.js";
+      import calibrationButton from './calibrationButton.js';
+
+      const GESTURES = [
+        "Left side",
+        "Right side",
+        "Down low",
+        "Up high"
+      ];
+
+      connectButton('#connectBtn', {
+        model: "./static/model.tflite",
+        numClasses: 4,
+        threshold: 0.219,
+        numSamples: 10,
+        captureDelay: 125,
+        useMagnetometer: true,
+        // this will be called when BLE connects
+        onConnect: ()=>{
+          console.log('onConnect');
+        },
+        // this will be called when BLE disconnects
+        onDisconnect: ()=>{
+          console.log('onDisconnect')
+        },
+        // this will be called when Arduino detects a gesture / makes an inference
+        onInference(data){
+          inferenceDiv.innerText = GESTURES[data.index];
+        },
+        // this will be called while model transfer is in progress
+        onTransferProgress(progress){
+          progressDiv.innerText = `Loaded ${Math.round(progress * 100)}%`;
+        },
+        // this will be called once model transfer completes successfully
+        onTransferCompleted(){
+          console.log("Transfer complete!");
+          progressDiv.innerText = "Transfer completed!";
+        }
+      });
+      
+      calibrationButton('#calibrationBtn',{
+        onCalibrationBegin(){
+          console.log('calibration start')
+        },
+        onCalibrationComplete(){
+          console.log('calibration complete');
+        }
+      });
+    </script>
+    <script></script>
+  </body>
+</html>

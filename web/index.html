@@ -1,0 +1,166 @@
+<!--
+Copyright 2021 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinyML Experiment BLE Transfer</title>
+  </head>
+  <body>
+    <h2>Testing page for TinyML Experiments BLE Api</h2>
+    <p>version: <span id="versionTxt">?</span></p>
+    <p>data provider labels: <span id="labelsTxt">?</span></p>
+    <button id="connectBtn">Connect</button>
+    <button id="transferBtn" disabled>Test Transfer</button>
+    <button id="calibrateBtn" disabled>Calibrate</button>
+    
+    <select id="stateSelect" disabled>
+      <option value="default">Set state..</option>
+      <option value="IDLE_DISCONNECTED">IDLE_DISCONNECTED</option>
+      <option value="IDLE_CONNECTED">IDLE_CONNECTED</option>
+      <option value="FILE_TRANSFER">FILE_TRANSFER</option>
+      <option value="INFERENCE">INFERENCE</option>
+      <option value="IMU_DATA_PROVIDER">IMU_DATA_PROVIDER</option>
+      <option value="ERROR_STATE">ERROR_STATE</option>
+      <option value="CALIBRATION">CALIBRATION</option>
+      <option value="INFERENCE_AND_DATA_PROVIDER">INFERENCE_AND_DATA_PROVIDER</option>
+    </select>
+
+    <div>
+      <input type="text" id="metaInput" placeholder="meta" maxlength="64" />
+      <button id="metaWriteBtn">Write meta data (64 bytes max)</button>
+    </div>
+
+    <div>
+      <label>use magnetometer:
+        <input id="useMagnetometerCheckbox" type="checkbox"/>
+      </label>
+    </div>
+    <p id="statusEl"></p>
+    <p id="inferenceEl"></p>
+    <p id="imuDataEl"></p>
+
+    <script type="module">
+      import * as api from "./api.js";
+
+      const GESTURES = [
+        "Left side",
+        "Right side",
+        "Down low",
+        "Up high"
+      ];
+
+      async function handleConnected() {
+        transferBtn.removeAttribute("disabled");
+        calibrateBtn.removeAttribute("disabled");
+        stateSelect.removeAttribute("disabled");
+        connectBtn.innerText = 'disconnect';
+        versionTxt.innerText = await api.readVersion();
+        labelsTxt.innerText = await api.readDataProviderLabels()
+      }
+
+      function handleDisconnected() {
+        transferBtn.setAttribute("disabled", true);
+        calibrateBtn.setAttribute("disabled", true);
+        stateSelect.setAttribute("disabled", true);
+        statusEl.innerText = "Click connect";
+        connectBtn.innerText = 'connect';
+      }
+
+      statusEl.innerText = "Click connect";
+
+      connectBtn.addEventListener("click", () => {
+        statusEl.innerText = "Connecting...";
+
+        api.connect().then(() => {
+          statusEl.innerText = "Connected! Arduino LED should now be blue";
+        });
+      });
+
+      calibrateBtn.addEventListener("click", () => {
+        alert(
+          "Hold the Arduino upright in between you and the computer screen, with the LED facing you. Once it stops blinking green it's done"
+        );
+        api.calibrate();
+      });
+
+      api.addEventListener('connect', handleConnected);
+      api.addEventListener('disconnect', handleDisconnected);
+      
+
+      useMagnetometerCheckbox.addEventListener('change', ()=>{
+        console.log(useMagnetometerCheckbox.checked);
+        api.setDisableMagnetometer(!useMagnetometerCheckbox.checked)
+      }, false);
+
+      metaWriteBtn.addEventListener(
+        "click",
+        async () => {
+          await api.writeMetaString(metaInput.value);
+          statusEl.innerText =
+            "Meta data read: " + (await api.readMetaString());
+        },
+        false
+      );
+
+      stateSelect.addEventListener("change", async (e) => {
+        const state = e.target.value;
+        if (state !== "default") {
+          await api.setState(e.target.value);
+          setTimeout(async () => {
+            e.target.value = "default";
+            e.target.value = await api.getState();
+
+          }, 200);
+        }
+      });
+
+      transferBtn.addEventListener("click", () => {
+        statusEl.innerText = "Transfering!";
+
+        api
+          .transferModel({
+            model: "./static/model.tflite",
+            numClasses: 4,
+            threshold: 0.219,
+            numSamples: 10,
+            captureDelay: 125,
+            useMagnetometer: true
+          })
+          .then(() => {
+            statusEl.innerText = "Transfer successful!";
+          });
+      });
+
+      api.addEventListener("inference", ({ index, score, velocity }) => {
+        statusEl.innerText = `Detected: ${GESTURES[index]} (score: ${score}, velocity: ${velocity})`;
+      });
+
+      api.addEventListener("imudata", (data) => {
+        imuDataEl.innerText =
+          "received data: " + [...data].map((v) => v.toFixed(4)).join(",");
+      });
+
+      api.addEventListener("file-transfer-progress", (p) => {
+        statusEl.innerText = `Transfering! ${Math.floor(p * 100)}%`;
+      });
+    </script>
+    <script></script>
+  </body>
+</html>

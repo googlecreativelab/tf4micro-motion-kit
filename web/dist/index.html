@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinyML Experiment BLE Transfer</title>
+  </head>
+  <body>
+    <div>
+    <a href="tf4micro-motion-kit-v005.zip">Download Sketch (v005)</a>
+    </div>
+    
+    <h2>TinyML Experiments BLE Button</h2>
+    <div id="buttonContainer"></div>
+    <div id="progressDiv"></div>
+    <div id="statusDiv"></div>
+
+    <div class="code">
+      Check source code of this page for example usage.
+
+      <p>
+      Include with: <br/>
+      <code>
+        &lt;script src=&quot;https://tf4micro-motion-kit-dot-gweb-tf-micro-exp.uc.r.appspot.com/tinyml-experiment-ble-imu-interface.js&quot;&gt;&lt;/script&gt;
+      </code>
+    </p>
+    </div>
+    <script src="tinyml-experiment-ble-imu-interface.js"></script>
+    <script>
+     
+      const GESTURES = [
+        "Left side",
+        "Right side",
+        "Down low",
+        "Up high"
+      ];
+
+      tinyMlExperimentBleInterface.createConnectButton('#buttonContainer', {
+        model: "./static/model.tflite",
+        numClasses: 4,
+        threshold: 0.219,
+        numSamples: 10,
+        captureDelay: 125,
+        useMagnetometer: true,
+        onConnect(){
+          console.log('connected');
+        },
+        onDisconnect(){
+          console.log('disconnected');
+        },
+        onInference(data){
+          statusDiv.innerText = GESTURES[data.index];
+        },
+        onTransferProgress(progress){
+          progressDiv.innerText = `Loaded ${Math.round(progress * 100)}%`;
+        }
+      });
+    
+
+      tinyMlExperimentBleInterface.createCalibrationButton('#buttonContainer',{
+        onCalibrationBegin(){
+          statusDiv.innerText = 'Starting calibration';
+        },
+        onCalibrationComplete(){
+          statusDiv.innerText = "Calibration completed";
+        }
+      });
+
+    </script>
+    <script></script>
+  </body>
+</html>

@@ -1,0 +1,101 @@
+<!--
+Copyright 2021 Google LLC
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+    https://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+==============================================================================
+-->
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TinyML Experiment BLE Transfer Test</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r123/three.min.js"
+      integrity="sha512-Q+IG0h7As6sfqE2t1Xf5IeamNyCXb4EXxGCA9Mlbpv7xtwurVHNdVDbyWeSQ3ulPf2FRlqeu77Ec3SJDdIR63w=="
+      crossorigin="anonymous"
+    ></script>
+  </head>
+  <body>
+    <button id="connectBtn">Connect</button>
+    <button id="calibrateBtn" disabled>Calibrate</button>
+    <p id="statusEl"></p>
+    <p id="inferenceEl"></p>
+    <script type="module">
+      import * as api from "./api.js";
+      let headingData = [0, 0, 0];
+      const GESTURES = [
+        "Up high! (kick)",
+        "Down low (snare)",
+        "To the side (cowbell)",
+      ];
+
+      statusEl.innerText = "Click connect";
+
+      connectBtn.addEventListener("click", () => {
+        statusEl.innerText = "Connecting...";
+
+        api.connect().then(() => {
+          statusEl.innerText = "Connected! Arduino LED should now be blue";
+          calibrateBtn.removeAttribute("disabled");
+          api.setState("IMU_TRAINER");
+        });
+      });
+
+      calibrateBtn.addEventListener("click", () => {
+        api.calibrate();
+      });
+
+      api.addEventListener("imudata", (data) => {
+        headingData = [data[6], data[7], data[8]];
+        const TO_DEG = 180 / Math.PI;
+        // const dStrings = headingData.map((v) => (v * Math.PI * TO_DEG).toFixed(2));
+        const dStrings = headingData.map((v) => (v).toFixed(2));
+           statusEl.innerText = dStrings.join(', ');
+      });
+
+      function setupThree() {
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(
+          75,
+          window.innerWidth / window.innerHeight,
+          0.1,
+          1000
+        );
+        camera.position.z = 50;
+        const renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+        const geometry = new THREE.CylinderGeometry(1, 1, 30, 5);
+        const material = new THREE.MeshBasicMaterial({
+          color: 0xffff00,
+          wireframe: true,
+        });
+        const cylinder = new THREE.Mesh(geometry, material);
+        scene.add(cylinder);
+         cylinder.rotation.order = 'XZY';
+        function update() {
+          requestAnimationFrame(update);
+          cylinder.rotation.set(...headingData.map((v) => v * Math.PI));
+          renderer.render(scene, camera);
+        }
+
+        update();
+      }
+
+      setupThree();
+    </script>
+    <script></script>
+  </body>
+</html>

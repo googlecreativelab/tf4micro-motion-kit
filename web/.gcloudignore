@@ -1,0 +1,9 @@
+# Ignore everything
+/[!.]*
+/.?*
+
+# Except the dist folder and app.yaml
+!/dist/**
+!/app.yaml
+
+/dist/.DS_Store
