@@ -5,9 +5,9 @@ When you’re connecting the board to your computer, a pre-trained Tensorflow Li
 
 **What if I’m having issues connecting via bluetooth?**<br/>
 If you are having issues connecting try the following: 
-1. Make sure your browser (Chrome or Edge) supports Bluetooth and it is enabled. . 
+1. Make sure your browser (Chrome or Edge) supports Bluetooth and it is enabled.
 2. Make sure your device (laptop, phone, etc) supports Bluetooth and that it is working and enabled.
-3. Refresh the web page,unplug the Arduino power cable and then plug it back in to reset, then try connecting again.
+3. Refresh the web page, unplug the Arduino power cable and then plug it back in to reset, then try connecting again.
 
 *NOTE: If you’re using a managed device, like a computer from school or work, your device policy may prevent BLE pairing.*
 
