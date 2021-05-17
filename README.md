@@ -94,3 +94,13 @@ Use the full api module (either by importing index.js or whatever functions you 
 You need live-server, python2 or 3 installed
 
 Then go to localhost:9090 in your browser and follow instructions
+
+----
+
+## Note
+
+This is not an official Google product, but a collection of experiments that were developed at the Google Creative Lab. This is not a library or code repository that intends to evolve. Instead, it is a snapshot alluding to what’s possible at this moment in time.
+
+We encourage open sourcing projects as a way of learning from each other. Please respect our and other creators’ rights, including copyright and trademark rights when present, when sharing these works and creating derivative work. If you want more info on Google's policy, you can find that [here.](https://about.google/brand-resource-center/ "Google Brand Resource Center")
+
+----
