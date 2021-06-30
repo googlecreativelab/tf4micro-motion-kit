@@ -1,9 +1,0 @@
-{
-  "name": "tf4micro-motion-kit",
-  "version": "1.0.0",
-  "main": "web/index.js",
-  "license": "MIT",
-  "exports": {
-    "./": "./web/"
-  }
-}
