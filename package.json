@@ -1,0 +1,6 @@
+{
+  "name": "tf4micro-motion-kit",
+  "version": "1.0.0",
+  "private": true,
+  "main": "web/index.js"
+}
