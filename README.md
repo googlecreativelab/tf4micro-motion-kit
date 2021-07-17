@@ -55,7 +55,7 @@ The board that comes with the TensorFlow Lite for Microcontrollers Kit by SparkF
 
 ## Web API Usage
 
-Either use the button.js module to create a button that will connect and transfer your model togheter with your setting to the arduino over BLE.
+Either use the button.js module to create a button that will connect and transfer your model together with your setting to the arduino over BLE,
 
 Example:
 ```
@@ -84,7 +84,7 @@ connectButton(containerElement, {
 ```
 or
 
-Use the full api module (either by importing index.js or whatever functions you need from api.js).
+Use the full api module (either by importing index.js or whatever functions you need from api.js)
 
 ## Run Test Pages:
 1. Build and upload the Sketch in the arduino folder to your BLE 33 Nano Sense
@@ -92,7 +92,7 @@ Use the full api module (either by importing index.js or whatever functions you 
     * `$ cd web`
     * `$ sh serv.sh`
 
-You need live-server, python2 or 3 installed
+You need a live-server, and either python 2 or 3 installed
 
 Then go to localhost:9090 in your browser and follow instructions
 
