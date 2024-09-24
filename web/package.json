@@ -8,6 +8,6 @@
     "build": "rollup index.js --file dist/tf4micro-motion-kit.js --format iife && cp -r static/ dist/static/"
   },
   "devDependencies": {
-    "rollup": "^2.45.2"
+    "rollup": "^3.29.5"
   }
 }
